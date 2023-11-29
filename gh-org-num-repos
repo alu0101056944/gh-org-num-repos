@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+if [ "$#" -lt 1 ]; then
+  echo "Not enough arguments provided, expected at least one."
+  exit 1
+fi
+
+QUERY='
+query($organizationName: String!) {
+  organization(login: $organizationName) {
+    repositories {
+      totalCount
+    }
+  }
+}
+'
+
+# TEMPLATE='
+#   {{- range $repo := .data.viewer.repositories.nodes -}}
+#     {{- printf "name: %s - stargazers: %v\n" $repo.nameWithOwner $repo.stargazerCount -}}
+#   {{- end -}}
+# '
+
+exec gh api graphql -f organizationName="$1" -f query="${QUERY}" --paginate --jq=".data.organization.repositories.totalCount"
